@@ -63,7 +63,7 @@ const MOCK: NewsArticle[] = [
 
 // Vite-only key
 function getKey(): string | undefined {
-  return (import.meta as any).env?.VITE_NEWSAPI_KEY;
+  return import.meta.env?.VITE_NEWSAPI_KEY;
 }
 
 function looksOvertlyNegative(text: string) {
@@ -86,7 +86,6 @@ async function fetchFromNewsApi(country: string, days: number) {
     url = new URL("https://newsapi.org/v2/everything");
     url.searchParams.set("q", `"${countryName}"`);
     url.searchParams.set("pageSize", "100");
-    // optionally restrict language to English: url.searchParams.set("language", "en");
   } else {
     url = new URL("https://newsapi.org/v2/top-headlines");
     url.searchParams.set("country", country || "us");
@@ -97,40 +96,73 @@ async function fetchFromNewsApi(country: string, days: number) {
 
   const resp = await fetch(url.toString());
   const text = await resp.text();
-  let body: any = text;
-  try {
-    body = JSON.parse(text);
-  } catch (_) {}
 
-  if (!resp.ok) {
-    throw new Error(
-      `NewsAPI ${resp.status} ${resp.statusText} — ${JSON.stringify(body)}`
-    );
+  type NewsApiResponse = { articles?: unknown };
+
+  let body: unknown = text;
+  try {
+    body = JSON.parse(text) as NewsApiResponse;
+  } catch (e) {
+    console.error("Failed to parse NewsAPI response as JSON:", String(e));
   }
 
-  const raw = body.articles || [];
+  let raw: unknown[] = [];
+  if (typeof body === "object" && body !== null && "articles" in body) {
+    const maybeArticles = (body as NewsApiResponse).articles;
+    if (Array.isArray(maybeArticles)) {
+      raw = maybeArticles;
+    }
+  }
+
   const cutoff = Date.now() - Math.max(1, days) * 24 * 60 * 60 * 1000;
 
   const processed = raw
-    .map((a: any) => {
-      const title = a.title ?? "";
-      const description = a.description ?? "";
-      const publishedAt = a.publishedAt ?? new Date().toISOString();
+    .map((item: unknown) => {
+      // skip non-objects early
+      if (typeof item !== "object" || item === null) return null;
+
+      const a = item as Record<string, unknown>;
+
+      const title = typeof a.title === "string" ? a.title : "";
+      const description =
+        typeof a.description === "string" ? a.description : "";
+      const publishedAt =
+        typeof a.publishedAt === "string"
+          ? a.publishedAt
+          : new Date().toISOString();
+
+      const url = typeof a.url === "string" ? a.url : "";
+
+      let sourceName = "";
+      const src = a.source;
+      if (typeof src === "object" && src !== null) {
+        const maybeName = (src as Record<string, unknown>).name;
+        if (typeof maybeName === "string") sourceName = maybeName;
+      } else if (typeof src === "string") {
+        sourceName = src;
+      }
+
+      const urlToImage =
+        typeof a.urlToImage === "string" ? a.urlToImage : undefined;
+
       const textForScore = `${title} ${description}`;
       const score = sentiment.analyze(textForScore).score;
+
       return {
         title,
         description,
-        url: a.url ?? "",
-        source: a.source?.name ?? "",
+        url,
+        source: sourceName,
         publishedAt,
-        urlToImage: a.urlToImage ?? undefined,
+        urlToImage,
         sentimentScore: score,
       } as NewsArticle;
     })
-    .filter((a: any) => new Date(a.publishedAt).getTime() >= cutoff);
+    .filter(
+      (x): x is NewsArticle =>
+        x !== null && new Date(x.publishedAt).getTime() >= cutoff
+    );
 
-  // Final: Accept articles with score > POS_THRESHOLD and which don't look overtly negative
   const positives = processed.filter(
     (a) =>
       (a.sentimentScore ?? 0) > POS_THRESHOLD &&
@@ -140,7 +172,6 @@ async function fetchFromNewsApi(country: string, days: number) {
   return positives;
 }
 
-// helper mapping (simple)
 function countryToName(code: string) {
   const map: Record<string, string> = {
     us: "United States",
@@ -162,9 +193,6 @@ export const fetchNews = async (
   const key = getKey();
 
   if (!key) {
-    console.warn(
-      "VITE_NEWSAPI_KEY not set — returning MOCK data. To fetch real news set VITE_NEWSAPI_KEY and restart dev server."
-    );
     return MOCK.map((m) => ({
       ...m,
       sentimentScore: sentiment.analyze(m.title + " " + m.description).score,
@@ -173,7 +201,7 @@ export const fetchNews = async (
 
   try {
     return await fetchFromNewsApi(c, days);
-  } catch (err: any) {
+  } catch (err) {
     console.error("newsService fetch error:", err);
     // fallback to mock so UI still responds
     return MOCK.map((m) => ({
