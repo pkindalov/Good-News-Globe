@@ -258,7 +258,7 @@ const SORTED_COUNTRIES: Country[] = [
 ];
 
 type Props = {
-  value: string; // selected country code, e.g. "us" or ""
+  value: string;
   onChange: (code: string) => void;
   placeholder?: string;
   className?: string;
@@ -291,21 +291,33 @@ export const CountrySelect: React.FC<Props> = ({
     >
       <div className={`relative ${className}`}>
         <div className="relative w-full">
-          <Combobox.Input
-            className="w-full border border-border/30 bg-card px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            displayValue={(c: Country | null) =>
-              c ? `${c.name} (${c.code.toUpperCase()})` : ""
-            }
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={
-              selectedObj
-                ? `${selectedObj.name} (${selectedObj.code.toUpperCase()})`
-                : placeholder
-            }
-          />
-          <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-            <ChevronDown className="w-5 h-5 text-muted-foreground" />
-          </Combobox.Button>
+          <div className="flex items-center rounded-md bg-card border border-border/30 px-3 py-2">
+            {selectedObj ? (
+              <span
+                className={`fi fi-${selectedObj.code.toLowerCase()} text-lg mr-3`}
+                aria-hidden="true"
+              />
+            ) : (
+              <span className="w-6 mr-3" />
+            )}
+
+            <Combobox.Input
+              className="flex-1 bg-transparent outline-none border-none placeholder:text-muted-foreground"
+              displayValue={(c: Country | null) =>
+                c ? `${c.name} (${c.code.toUpperCase()})` : ""
+              }
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={
+                selectedObj
+                  ? `${selectedObj.name} (${selectedObj.code.toUpperCase()})`
+                  : placeholder
+              }
+            />
+
+            <Combobox.Button className="ml-3">
+              <ChevronDown className="w-5 h-5 text-muted-foreground" />
+            </Combobox.Button>
+          </div>
         </div>
 
         <Combobox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-card/95 backdrop-blur-sm border border-border/30 py-1 shadow-lg">
