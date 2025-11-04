@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+// src/pages/Index.tsx
+import React, { useState, useEffect } from "react";
 import { NewsCard } from "@/components/NewsCard";
 import { NewsFilters } from "@/components/NewsFilters";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -10,38 +11,32 @@ import { useToast } from "@/hooks/use-toast";
 
 import { Sparkles, Heart, Globe } from "lucide-react";
 
-const Index = () => {
+const Index: React.FC = () => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState("7");
   const { toast } = useToast();
 
-  // ========== AUTO-DETECT USER'S COUNTRY ==========
-  // useEffect runs code when the component first appears on screen
-  // The empty [] at the end means "run this only once when page loads"
   useEffect(() => {
     const getUserCountry = async () => {
       try {
-        // Call API to get user's location info based on their IP
         const response = await fetch("https://ipapi.co/json/");
-        const data = await response.json(); // Convert response to JavaScript object
+        const data = await response.json();
 
         if (data.country_code) {
-          //(bg, us, de)
           setSelectedCountry(data.country_code.toLowerCase());
           return;
         }
 
         setSelectedCountry("us");
       } catch (error) {
-        // If anything goes wrong (no internet, API down), default to US
         setSelectedCountry("us");
       }
     };
 
     getUserCountry();
-  }, []); // Empty array = only run once when component first loads
+  }, []);
 
   const handleSearch = async () => {
     if (!selectedCountry || !selectedPeriod) return;
@@ -69,10 +64,11 @@ const Index = () => {
         description: `Found ${newsData.length} positive news articles.`,
       });
     } catch (error) {
+      console.error("Index handleSearch error:", error);
       toast({
         title: "Error",
         description: "Failed to fetch news. Please try again.",
-        variant: "destructive", // Makes toast red/warning style
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -101,18 +97,17 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8 space-y-8">
         <div className="max-w-4xl mx-auto animate-fade-in">
           <NewsFilters
-            selectedCountry={selectedCountry} // Pass current country
-            selectedPeriod={selectedPeriod} // Pass current period
-            onCountryChange={setSelectedCountry} // Function to update country
-            onPeriodChange={setSelectedPeriod} // Function to update period
-            onSearch={handleSearch} // Function to fetch news
-            isLoading={loading} // Tell if we're loading
+            selectedCountry={selectedCountry}
+            selectedPeriod={selectedPeriod}
+            onCountryChange={setSelectedCountry}
+            onPeriodChange={setSelectedPeriod}
+            onSearch={handleSearch}
+            isLoading={loading}
           />
         </div>
 
         {loading && <LoadingSpinner />}
 
-        {/* Only show if: NOT loading AND we have articles */}
         {!loading && articles.length > 0 && (
           <div className="space-y-6 animate-slide-up">
             <div className="text-center space-y-2">
@@ -127,7 +122,6 @@ const Index = () => {
               </p>
             </div>
 
-            {/* Responsive: 1 column on mobile, 2 on tablet, 3 on desktop */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
               {articles.map((article, index) => (
                 <div
@@ -142,7 +136,6 @@ const Index = () => {
           </div>
         )}
 
-        {/* Show if: NOT loading AND no articles AND user has selected filters */}
         {!loading &&
           articles.length === 0 &&
           selectedCountry &&
