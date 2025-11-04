@@ -5,8 +5,6 @@ import { Check, ChevronDown } from "lucide-react";
 
 export type Country = { code: string; name: string };
 
-// MERGED list (all countries that were in your old select, deduped)
-// Sorted alphabetically by name
 const SORTED_COUNTRIES: Country[] = [
   { code: "ad", name: "Andorra" },
   { code: "ae", name: "United Arab Emirates" },
@@ -316,29 +314,40 @@ export const CountrySelect: React.FC<Props> = ({
               No countries match “{query}”
             </div>
           ) : (
-            filtered.map((c) => (
-              <Combobox.Option
-                key={c.code}
-                value={c}
-                className={({ active }) =>
-                  `flex items-center justify-between px-3 py-2 cursor-pointer text-sm ${
-                    active ? "bg-accent/20" : "bg-transparent"
-                  }`
-                }
-              >
-                {({ selected }) => (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">{c.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        ({c.code.toUpperCase()})
-                      </span>
-                    </div>
-                    {selected && <Check className="w-4 h-4 text-success" />}
-                  </>
-                )}
-              </Combobox.Option>
-            ))
+            filtered.map((c) => {
+              const code = c.code.toLowerCase();
+              return (
+                <Combobox.Option
+                  key={c.code}
+                  value={c}
+                  className={({ active }) =>
+                    `flex items-center justify-between px-3 py-2 cursor-pointer text-sm ${
+                      active ? "bg-accent/20" : "bg-transparent"
+                    }`
+                  }
+                >
+                  {({ selected }) => (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`fi fi-${code} text-xl`}
+                          aria-hidden="true"
+                        />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">{c.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              ({c.code.toUpperCase()})
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      {selected && <Check className="w-4 h-4 text-success" />}
+                    </>
+                  )}
+                </Combobox.Option>
+              );
+            })
           )}
         </Combobox.Options>
       </div>
