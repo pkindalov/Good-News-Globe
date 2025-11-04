@@ -1,73 +1,82 @@
-# Welcome to your Lovable project
+# 🌍 Good News Globe
 
-## Project info
+**Good News Globe** is a modern web app that helps you discover **positive and uplifting news** from around the world.  
+It filters out negative or tragic stories using sentiment analysis — bringing light to your day, one story at a time ✨
 
-**URL**: https://lovable.dev/projects/8c79300d-0cf7-47dc-8e24-4ddffe1587a3
+![Good News Globe Screenshot](./src/assets/screenshot.png)
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🚀 Features
 
-**Use Lovable**
+- 📰 **Positive News Only** — powered by sentiment analysis and keyword filtering
+- 🌎 **Country-Based Search** — find uplifting stories from your region or around the world
+- 📅 **Customizable Time Periods** — filter by last 3, 7, or 30 days
+- 💬 **Smart Feedback System** — toast notifications for successful or failed searches
+- 💫 **Smooth Animations** — elegant UI transitions powered by TailwindCSS
+- 🔮 **Fallback Mock Data** — works even if API key is missing
+- 🧭 **Auto Detects Your Country** using IP geolocation
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8c79300d-0cf7-47dc-8e24-4ddffe1587a3) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🧠 Tech Stack
 
-**Use your preferred IDE**
+| Category               | Tools & Libraries                                                              |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| **Frontend Framework** | [React 18](https://react.dev/) + [Vite](https://vitejs.dev/)                   |
+| **UI Framework**       | [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) |
+| **Routing**            | [React Router v6](https://reactrouter.com/)                                    |
+| **Data Fetching**      | [TanStack Query](https://tanstack.com/query)                                   |
+| **Sentiment Analysis** | [sentiment](https://www.npmjs.com/package/sentiment)                           |
+| **Icons**              | [Lucide React](https://lucide.dev/icons)                                       |
+| **API Source**         | [NewsAPI.org](https://newsapi.org/)                                            |
+| **Geo IP**             | [ipapi.co](https://ipapi.co/)                                                  |
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ Installation & Setup
 
-Follow these steps:
+### 1. Clone the repository
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+```bash
+git clone https://github.com/YOUR_USERNAME/good-news-globe.git
+cd good-news-globe
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 2. Install dependencies
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+npm install
+# or
+yarn install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```
+
+### 3. Create your .env file
+
+```bash
+VITE_NEWSAPI_KEY=your_newsapi_key_here
+```
+
+You can get a free API key from https://newsapi.org
+
+### 4. Run the development server
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### 5. Build for production
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run build
 
-**Use GitHub Codespaces**
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+💡 How It Works
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/8c79300d-0cf7-47dc-8e24-4ddffe1587a3) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+The app detects your location via ipapi.co
+Fetches top or relevant news using NewsAPI
+Analyzes article sentiment using the sentiment library
+Filters out articles that are overly negative or contain harmful keywords
+Displays only positive stories 🌈
