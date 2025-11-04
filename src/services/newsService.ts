@@ -1,41 +1,14 @@
 // src/services/newsService.ts  (Vite + sentiment)
 import Sentiment from "sentiment";
 import { NEGATIVE_WORDS } from "@/data/words";
-
-export interface NewsArticle {
-  title: string;
-  description: string;
-  url: string;
-  source: string;
-  publishedAt: string;
-  country?: string;
-  sentimentScore?: number;
-  urlToImage?: string;
-}
+import { MOCK_ARTICLES } from "@/data/articles";
+import { NewsArticle } from "@/interfaces/news-article";
+import { NewsApiResponse } from "@/types/news-api-response";
 
 const sentiment = new Sentiment();
 
 // Tweak these values to be more/less strict
 const POS_THRESHOLD = 1; // sentiment score must be > this to be considered positive
-const MOCK: NewsArticle[] = [
-  {
-    title: "Mock: Scientists develop breakthrough",
-    description: "Hopeful treatment shows promise",
-    url: "#",
-    source: "Mock",
-    publishedAt: new Date().toISOString(),
-    country: "United States",
-  },
-  {
-    title: "Mock: Local community raises millions",
-    description: "Amazing community effort",
-    url: "#",
-    source: "Mock",
-    publishedAt: new Date().toISOString(),
-    country: "Canada",
-  },
-];
-
 function getKey(): string | undefined {
   return import.meta.env?.VITE_NEWSAPI_KEY;
 }
@@ -70,8 +43,6 @@ async function fetchFromNewsApi(country: string, days: number) {
 
   const resp = await fetch(url.toString());
   const text = await resp.text();
-
-  type NewsApiResponse = { articles?: unknown };
 
   let body: unknown = text;
   try {
@@ -167,7 +138,7 @@ export const fetchNews = async (
   const key = getKey();
 
   if (!key) {
-    return MOCK.map((mockNews) => ({
+    return MOCK_ARTICLES.map((mockNews) => ({
       ...mockNews,
       sentimentScore: sentiment.analyze(
         mockNews.title + " " + mockNews.description
@@ -180,7 +151,7 @@ export const fetchNews = async (
   } catch (err) {
     console.error("newsService fetch error:", err);
     // fallback to mock so UI still responds
-    return MOCK.map((mockNews) => ({
+    return MOCK_ARTICLES.map((mockNews) => ({
       ...mockNews,
       sentimentScore: sentiment.analyze(
         mockNews.title + " " + mockNews.description

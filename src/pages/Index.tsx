@@ -3,9 +3,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { NewsCard } from "@/components/NewsCard";
 import { NewsFilters } from "@/components/NewsFilters";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { NewsArticle } from "@/interfaces/news-article";
 import PageButton from "@/components/PageButton";
 
-import { fetchNews, type NewsArticle } from "@/services/newsService";
+import { fetchNews } from "@/services/newsService";
 
 import { useToast } from "@/hooks/use-toast";
 

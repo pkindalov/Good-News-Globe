@@ -8,16 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar, Globe, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { NewsFilter } from "@/interfaces/news-filters";
 import CountrySelect from "./CountrySelect";
-
-interface NewsFiltersProps {
-  selectedCountry: string;
-  selectedPeriod: string;
-  onCountryChange: (country: string) => void;
-  onPeriodChange: (period: string) => void;
-  onSearch: () => void;
-  isLoading: boolean;
-}
 
 const periods = [
   { value: "1", label: "Last 24 hours" },
@@ -34,7 +26,7 @@ export const NewsFilters = ({
   onPeriodChange,
   onSearch,
   isLoading,
-}: NewsFiltersProps) => {
+}: NewsFilter) => {
   return (
     <Card className="bg-gradient-primary border-0 shadow-card">
       <CardContent className="p-6">
