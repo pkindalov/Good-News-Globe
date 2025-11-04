@@ -1,5 +1,6 @@
 // src/services/newsService.ts  (Vite + sentiment)
 import Sentiment from "sentiment";
+import { NEGATIVE_WORDS } from "@/data/words";
 
 export interface NewsArticle {
   title: string;
@@ -16,31 +17,6 @@ const sentiment = new Sentiment();
 
 // Tweak these values to be more/less strict
 const POS_THRESHOLD = 1; // sentiment score must be > this to be considered positive
-const NEGATIVE_WORDS = [
-  "crisis",
-  "disaster",
-  "conflict",
-  "war",
-  "violence",
-  "death",
-  "tragedy",
-  "attack",
-  "murder",
-  "kill",
-  "died",
-  "dead",
-  "fraud",
-  "scandal",
-  "fear",
-  "abuse",
-  "suicide",
-  "suffers",
-  "illness",
-  "disease",
-  "missing",
-  "feared",
-];
-
 const MOCK: NewsArticle[] = [
   {
     title: "Mock: Scientists develop breakthrough",
