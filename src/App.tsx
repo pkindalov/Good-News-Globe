@@ -17,8 +17,12 @@ const App = () => (
       <Toaster />
       <Sonner />
 
-      {/* BrowserRouter: Enables routing (different URLs show different pages) */}
-      <BrowserRouter>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="*" element={<NotFound />} />
