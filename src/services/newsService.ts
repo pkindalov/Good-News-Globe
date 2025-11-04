@@ -1,4 +1,3 @@
-// src/services/newsService.ts  (Vite + sentiment)
 import Sentiment from "sentiment";
 import { NEGATIVE_WORDS } from "@/data/words";
 import { MOCK_ARTICLES } from "@/data/articles";
@@ -6,49 +5,72 @@ import { NewsArticle } from "@/interfaces/news-article";
 import { NewsApiResponse } from "@/types/news-api-response";
 
 const sentiment = new Sentiment();
-
-// Tweak these values to be more/less strict
 const POS_THRESHOLD = 1; // sentiment score must be > this to be considered positive
+
 function getKey(): string | undefined {
   return import.meta.env?.VITE_NEWSAPI_KEY;
 }
+
+// Optional client env flag: when true, always use the server proxy even in dev
+const VITE_USE_SERVER_PROXY = import.meta.env?.VITE_USE_SERVER_PROXY === "true";
 
 function looksOvertlyNegative(text: string) {
   const textLowercase = text.toLowerCase();
   return NEGATIVE_WORDS.some((word) => textLowercase.includes(word));
 }
 
+function countryToName(code: string) {
+  const map: Record<string, string> = {
+    us: "United States",
+    gb: "United Kingdom",
+    ca: "Canada",
+    de: "Germany",
+    fr: "France",
+    bg: "Bulgaria",
+    se: "Sweden",
+  };
+  return map[code?.toLowerCase()] ?? undefined;
+}
+
 async function fetchFromNewsApi(country: string, days: number) {
-  const key = getKey();
-  if (!key) throw new Error("Missing VITE_NEWSAPI_KEY (set in .env)");
+  const countryName = countryToName(country) || country;
+  const newsApiUrl = new URL("https://newsapi.org/v2/everything");
+  newsApiUrl.searchParams.set("q", `"${countryName}"`);
+  newsApiUrl.searchParams.set("pageSize", "100");
 
-  // Optional: For small countries with sparse 'top-headlines', use /everything with q=country name
-  // Set this to true to try the everything endpoint for countries that return few headlines.
-  const USE_EVERYTHING_FOR_COUNTRY = true;
+  // decide whether to call direct NewsAPI (dev) or use server proxy (/api/news)
+  const isLocalhost =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
 
-  let url: URL;
-  if (USE_EVERYTHING_FOR_COUNTRY) {
-    // Search for the country's name in article text (more hits, but noisier)
-    const countryName = countryToName(country) || country;
-    url = new URL("https://newsapi.org/v2/everything");
-    url.searchParams.set("q", `"${countryName}"`);
-    url.searchParams.set("pageSize", "100");
+  const viteKey = getKey();
+  const allowDirectDev = Boolean(
+    isLocalhost && viteKey && !VITE_USE_SERVER_PROXY
+  );
+
+  // perform fetch
+  let resp: Response;
+  if (allowDirectDev) {
+    newsApiUrl.searchParams.set("apiKey", viteKey!);
+    resp = await fetch(newsApiUrl.toString());
   } else {
-    url = new URL("https://newsapi.org/v2/top-headlines");
-    url.searchParams.set("country", country || "us");
-    url.searchParams.set("pageSize", "100");
+    const proxy = new URL("/api/news", window.location.origin);
+    proxy.searchParams.set("q", `"${countryName}"`);
+    proxy.searchParams.set("pageSize", "100");
+    resp = await fetch(proxy.toString());
   }
 
-  url.searchParams.set("apiKey", key);
-
-  const resp = await fetch(url.toString());
   const text = await resp.text();
 
   let body: unknown = text;
   try {
     body = JSON.parse(text) as NewsApiResponse;
   } catch (e) {
-    console.error("Failed to parse NewsAPI response as JSON:", String(e));
+    console.error(
+      "Failed to parse NewsAPI or proxy response as JSON:",
+      String(e)
+    );
   }
 
   let raw: unknown[] = [];
@@ -63,9 +85,7 @@ async function fetchFromNewsApi(country: string, days: number) {
 
   const processedNews = raw
     .map((item: unknown) => {
-      // skip non-objects early
       if (typeof item !== "object" || item === null) return null;
-
       const a = item as Record<string, unknown>;
 
       const title = typeof a.title === "string" ? a.title : "";
@@ -75,7 +95,6 @@ async function fetchFromNewsApi(country: string, days: number) {
         typeof a.publishedAt === "string"
           ? a.publishedAt
           : new Date().toISOString();
-
       const url = typeof a.url === "string" ? a.url : "";
 
       let sourceName = "";
@@ -117,19 +136,6 @@ async function fetchFromNewsApi(country: string, days: number) {
   return positivesNews;
 }
 
-function countryToName(code: string) {
-  const map: Record<string, string> = {
-    us: "United States",
-    gb: "United Kingdom",
-    ca: "Canada",
-    de: "Germany",
-    fr: "France",
-    bg: "Bulgaria",
-    se: "Sweden",
-  };
-  return map[code?.toLowerCase()] ?? undefined;
-}
-
 export const fetchNews = async (
   country: string,
   days: number
@@ -137,7 +143,10 @@ export const fetchNews = async (
   const countryLowercase = (country || "us").toLowerCase();
   const key = getKey();
 
-  if (!key) {
+  // If no VITE key (local) AND you don't have a proxy running, return mock
+  // Note: even if VITE key exists, we may still prefer proxy (controlled above)
+  if (!key && typeof window !== "undefined") {
+    // quick fallback - attach sentimentScore so UI shows useful info
     return MOCK_ARTICLES.map((mockNews) => ({
       ...mockNews,
       sentimentScore: sentiment.analyze(
