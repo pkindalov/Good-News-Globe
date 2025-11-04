@@ -1,4 +1,6 @@
-// src/services/newsService.ts  (Vite only - corrected)
+// src/services/newsService.ts  (Vite + sentiment)
+import Sentiment from "sentiment";
+
 export interface NewsArticle {
   title: string;
   description: string;
@@ -10,25 +12,36 @@ export interface NewsArticle {
   urlToImage?: string;
 }
 
-// simple positive-word scoring
-const positiveWords = [
-  "success",
-  "breakthrough",
-  "progress",
-  "hope",
-  "victory",
-  "positive",
-  "amazing",
-  "wonderful",
-  "great",
-  "community",
-];
-function scoreText(text = "") {
-  const t = text.toLowerCase();
-  return positiveWords.reduce((s, w) => s + (t.includes(w) ? 1 : 0), 0);
-}
+const sentiment = new Sentiment();
 
-// quick mocks so app never crashes
+// Tweak these values to be more/less strict
+const POS_THRESHOLD = 1; // sentiment score must be > this to be considered positive
+const NEGATIVE_WORDS = [
+  "crisis",
+  "disaster",
+  "conflict",
+  "war",
+  "violence",
+  "death",
+  "tragedy",
+  "attack",
+  "murder",
+  "kill",
+  "died",
+  "dead",
+  "fraud",
+  "scandal",
+  "fear",
+  "abuse",
+  "suicide",
+  "suffers",
+  "illness",
+  "disease",
+  "missing",
+  "feared",
+];
+
+// small mocks so UI never dies
 const MOCK: NewsArticle[] = [
   {
     title: "Mock: Scientists develop breakthrough",
@@ -37,7 +50,6 @@ const MOCK: NewsArticle[] = [
     source: "Mock",
     publishedAt: new Date().toISOString(),
     country: "United States",
-    urlToImage: "",
   },
   {
     title: "Mock: Local community raises millions",
@@ -46,25 +58,41 @@ const MOCK: NewsArticle[] = [
     source: "Mock",
     publishedAt: new Date().toISOString(),
     country: "Canada",
-    urlToImage: "",
   },
 ];
 
-// Vite-only: read key from import.meta.env.VITE_NEWSAPI_KEY
+// Vite-only key
 function getKey(): string | undefined {
-  // NOTE: import.meta is available in Vite-built code
-  // cast to any for TypeScript so we can read the env at runtime
   return (import.meta as any).env?.VITE_NEWSAPI_KEY;
+}
+
+function looksOvertlyNegative(text: string) {
+  const t = text.toLowerCase();
+  return NEGATIVE_WORDS.some((w) => t.includes(w));
 }
 
 async function fetchFromNewsApi(country: string, days: number) {
   const key = getKey();
-  if (!key)
-    throw new Error("Missing VITE_NEWSAPI_KEY (set in .env at project root)");
+  if (!key) throw new Error("Missing VITE_NEWSAPI_KEY (set in .env)");
 
-  const url = new URL("https://newsapi.org/v2/top-headlines");
-  url.searchParams.set("country", country || "us");
-  url.searchParams.set("pageSize", "100");
+  // Optional: For small countries with sparse 'top-headlines', use /everything with q=country name
+  // Set this to true to try the everything endpoint for countries that return few headlines.
+  const USE_EVERYTHING_FOR_COUNTRY = true;
+
+  let url: URL;
+  if (USE_EVERYTHING_FOR_COUNTRY) {
+    // Search for the country's name in article text (more hits, but noisier)
+    const countryName = countryToName(country) || country;
+    url = new URL("https://newsapi.org/v2/everything");
+    url.searchParams.set("q", `"${countryName}"`);
+    url.searchParams.set("pageSize", "100");
+    // optionally restrict language to English: url.searchParams.set("language", "en");
+  } else {
+    url = new URL("https://newsapi.org/v2/top-headlines");
+    url.searchParams.set("country", country || "us");
+    url.searchParams.set("pageSize", "100");
+  }
+
   url.searchParams.set("apiKey", key);
 
   const resp = await fetch(url.toString());
@@ -72,9 +100,7 @@ async function fetchFromNewsApi(country: string, days: number) {
   let body: any = text;
   try {
     body = JSON.parse(text);
-  } catch (_) {
-    // not JSON
-  }
+  } catch (_) {}
 
   if (!resp.ok) {
     throw new Error(
@@ -85,25 +111,47 @@ async function fetchFromNewsApi(country: string, days: number) {
   const raw = body.articles || [];
   const cutoff = Date.now() - Math.max(1, days) * 24 * 60 * 60 * 1000;
 
-  return raw
+  const processed = raw
     .map((a: any) => {
       const title = a.title ?? "";
       const description = a.description ?? "";
-      const s = scoreText(title + " " + description);
+      const publishedAt = a.publishedAt ?? new Date().toISOString();
+      const textForScore = `${title} ${description}`;
+      const score = sentiment.analyze(textForScore).score;
       return {
         title,
         description,
         url: a.url ?? "",
         source: a.source?.name ?? "",
-        publishedAt: a.publishedAt ?? new Date().toISOString(),
+        publishedAt,
         urlToImage: a.urlToImage ?? undefined,
-        sentimentScore: s,
+        sentimentScore: score,
       } as NewsArticle;
     })
-    .filter(
-      (a: any) =>
-        new Date(a.publishedAt).getTime() >= cutoff && a.sentimentScore > 0
-    );
+    .filter((a: any) => new Date(a.publishedAt).getTime() >= cutoff);
+
+  // Final: Accept articles with score > POS_THRESHOLD and which don't look overtly negative
+  const positives = processed.filter(
+    (a) =>
+      (a.sentimentScore ?? 0) > POS_THRESHOLD &&
+      !looksOvertlyNegative(`${a.title} ${a.description}`)
+  );
+
+  return positives;
+}
+
+// helper mapping (simple)
+function countryToName(code: string) {
+  const map: Record<string, string> = {
+    us: "United States",
+    gb: "United Kingdom",
+    ca: "Canada",
+    de: "Germany",
+    fr: "France",
+    bg: "Bulgaria",
+    se: "Sweden",
+  };
+  return map[code?.toLowerCase()] ?? undefined;
 }
 
 export const fetchNews = async (
@@ -115,22 +163,22 @@ export const fetchNews = async (
 
   if (!key) {
     console.warn(
-      "VITE_NEWSAPI_KEY not set — returning MOCK data. To enable real requests add VITE_NEWSAPI_KEY to .env and restart dev server."
+      "VITE_NEWSAPI_KEY not set — returning MOCK data. To fetch real news set VITE_NEWSAPI_KEY and restart dev server."
     );
     return MOCK.map((m) => ({
       ...m,
-      sentimentScore: scoreText(m.title + " " + m.description),
+      sentimentScore: sentiment.analyze(m.title + " " + m.description).score,
     }));
   }
 
   try {
     return await fetchFromNewsApi(c, days);
   } catch (err: any) {
-    console.error("fetchNews -> API error:", err);
-    // fallback so UI still works
+    console.error("newsService fetch error:", err);
+    // fallback to mock so UI still responds
     return MOCK.map((m) => ({
       ...m,
-      sentimentScore: scoreText(m.title + " " + m.description),
+      sentimentScore: sentiment.analyze(m.title + " " + m.description).score,
     }));
   }
 };
