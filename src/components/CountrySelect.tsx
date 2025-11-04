@@ -1,25 +1,13 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Calendar, Globe, Search } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import CountrySelect from "./CountrySelect";
+// src/components/CountrySelect.tsx
+import React, { useMemo, useState } from "react";
+import { Combobox } from "@headlessui/react";
+import { Check, ChevronDown } from "lucide-react";
 
-interface NewsFiltersProps {
-  selectedCountry: string;
-  selectedPeriod: string;
-  onCountryChange: (country: string) => void;
-  onPeriodChange: (period: string) => void;
-  onSearch: () => void;
-  isLoading: boolean;
-}
+export type Country = { code: string; name: string };
 
-const countries = [
+// MERGED list (all countries that were in your old select, deduped)
+// Sorted alphabetically by name
+const SORTED_COUNTRIES: Country[] = [
   { code: "ad", name: "Andorra" },
   { code: "ae", name: "United Arab Emirates" },
   { code: "af", name: "Afghanistan" },
@@ -271,77 +259,91 @@ const countries = [
   { code: "zw", name: "Zimbabwe" },
 ];
 
-const periods = [
-  { value: "1", label: "Last 24 hours" },
-  { value: "3", label: "Last 3 days" },
-  { value: "7", label: "Last week" },
-  { value: "14", label: "Last 2 weeks" },
-  { value: "30", label: "Last month" },
-];
+type Props = {
+  value: string; // selected country code, e.g. "us" or ""
+  onChange: (code: string) => void;
+  placeholder?: string;
+  className?: string;
+};
 
-export const NewsFilters = ({
-  selectedCountry,
-  selectedPeriod,
-  onCountryChange,
-  onPeriodChange,
-  onSearch,
-  isLoading,
-}: NewsFiltersProps) => {
+export const CountrySelect: React.FC<Props> = ({
+  value,
+  onChange,
+  placeholder = "Type to search countries...",
+  className = "",
+}) => {
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return SORTED_COUNTRIES;
+    const q = query.toLowerCase();
+    return SORTED_COUNTRIES.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)
+    );
+  }, [query]);
+
+  const selectedObj = SORTED_COUNTRIES.find((c) => c.code === value) ?? null;
+
   return (
-    <Card className="bg-gradient-primary border-0 shadow-card">
-      <CardContent className="p-6">
-        <div className="flex flex-col sm:flex-row gap-4 items-end">
-          <div className="flex-1 space-y-2">
-            <label className="text-sm font-medium text-primary-foreground flex items-center gap-2">
-              <Globe className="w-4 h-4" />
-              Country
-            </label>
-            <CountrySelect
-              value={selectedCountry}
-              onChange={(code) => onCountryChange(code)}
-              placeholder="Type or pick a country..."
-              className="max-w-md"
-            />
-          </div>
-
-          <div className="flex-1 space-y-2">
-            <label className="text-sm font-medium text-primary-foreground flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Time Period
-            </label>
-            <Select value={selectedPeriod} onValueChange={onPeriodChange}>
-              <SelectTrigger className="bg-white/90 border-white/20 focus:ring-white/50">
-                <SelectValue placeholder="Select time period" />
-              </SelectTrigger>
-              <SelectContent>
-                {periods.map((period) => (
-                  <SelectItem key={period.value} value={period.value}>
-                    {period.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            onClick={onSearch}
-            disabled={isLoading || !selectedCountry || !selectedPeriod}
-            className="bg-white text-primary hover:bg-white/90 font-medium px-8 h-11"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent mr-2" />
-                Searching...
-              </>
-            ) : (
-              <>
-                <Search className="w-4 h-4 mr-2" />
-                Find Good News
-              </>
-            )}
-          </Button>
+    <Combobox
+      value={selectedObj}
+      onChange={(c) => onChange(c?.code ?? "")}
+      nullable
+    >
+      <div className={`relative ${className}`}>
+        <div className="relative w-full">
+          <Combobox.Input
+            className="w-full border border-border/30 bg-card px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            displayValue={(c: Country | null) =>
+              c ? `${c.name} (${c.code.toUpperCase()})` : ""
+            }
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={
+              selectedObj
+                ? `${selectedObj.name} (${selectedObj.code.toUpperCase()})`
+                : placeholder
+            }
+          />
+          <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+            <ChevronDown className="w-5 h-5 text-muted-foreground" />
+          </Combobox.Button>
         </div>
-      </CardContent>
-    </Card>
+
+        <Combobox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-card/95 backdrop-blur-sm border border-border/30 py-1 shadow-lg">
+          {filtered.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-muted-foreground">
+              No countries match “{query}”
+            </div>
+          ) : (
+            filtered.map((c) => (
+              <Combobox.Option
+                key={c.code}
+                value={c}
+                className={({ active }) =>
+                  `flex items-center justify-between px-3 py-2 cursor-pointer text-sm ${
+                    active ? "bg-accent/20" : "bg-transparent"
+                  }`
+                }
+              >
+                {({ selected }) => (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">{c.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({c.code.toUpperCase()})
+                      </span>
+                    </div>
+                    {selected && <Check className="w-4 h-4 text-success" />}
+                  </>
+                )}
+              </Combobox.Option>
+            ))
+          )}
+        </Combobox.Options>
+      </div>
+    </Combobox>
   );
 };
+
+export default CountrySelect;
