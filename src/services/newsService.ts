@@ -41,7 +41,6 @@ const NEGATIVE_WORDS = [
   "feared",
 ];
 
-// small mocks so UI never dies
 const MOCK: NewsArticle[] = [
   {
     title: "Mock: Scientists develop breakthrough",
@@ -61,14 +60,13 @@ const MOCK: NewsArticle[] = [
   },
 ];
 
-// Vite-only key
 function getKey(): string | undefined {
   return import.meta.env?.VITE_NEWSAPI_KEY;
 }
 
 function looksOvertlyNegative(text: string) {
-  const t = text.toLowerCase();
-  return NEGATIVE_WORDS.some((w) => t.includes(w));
+  const textLowercase = text.toLowerCase();
+  return NEGATIVE_WORDS.some((word) => textLowercase.includes(word));
 }
 
 async function fetchFromNewsApi(country: string, days: number) {
@@ -116,7 +114,7 @@ async function fetchFromNewsApi(country: string, days: number) {
 
   const cutoff = Date.now() - Math.max(1, days) * 24 * 60 * 60 * 1000;
 
-  const processed = raw
+  const processedNews = raw
     .map((item: unknown) => {
       // skip non-objects early
       if (typeof item !== "object" || item === null) return null;
@@ -159,17 +157,17 @@ async function fetchFromNewsApi(country: string, days: number) {
       } as NewsArticle;
     })
     .filter(
-      (x): x is NewsArticle =>
-        x !== null && new Date(x.publishedAt).getTime() >= cutoff
+      (news): news is NewsArticle =>
+        news !== null && new Date(news.publishedAt).getTime() >= cutoff
     );
 
-  const positives = processed.filter(
-    (a) =>
-      (a.sentimentScore ?? 0) > POS_THRESHOLD &&
-      !looksOvertlyNegative(`${a.title} ${a.description}`)
+  const positivesNews = processedNews.filter(
+    (news) =>
+      (news.sentimentScore ?? 0) > POS_THRESHOLD &&
+      !looksOvertlyNegative(`${news.title} ${news.description}`)
   );
 
-  return positives;
+  return positivesNews;
 }
 
 function countryToName(code: string) {
@@ -189,24 +187,28 @@ export const fetchNews = async (
   country: string,
   days: number
 ): Promise<NewsArticle[]> => {
-  const c = (country || "us").toLowerCase();
+  const countryLowercase = (country || "us").toLowerCase();
   const key = getKey();
 
   if (!key) {
-    return MOCK.map((m) => ({
-      ...m,
-      sentimentScore: sentiment.analyze(m.title + " " + m.description).score,
+    return MOCK.map((mockNews) => ({
+      ...mockNews,
+      sentimentScore: sentiment.analyze(
+        mockNews.title + " " + mockNews.description
+      ).score,
     }));
   }
 
   try {
-    return await fetchFromNewsApi(c, days);
+    return await fetchFromNewsApi(countryLowercase, days);
   } catch (err) {
     console.error("newsService fetch error:", err);
     // fallback to mock so UI still responds
-    return MOCK.map((m) => ({
-      ...m,
-      sentimentScore: sentiment.analyze(m.title + " " + m.description).score,
+    return MOCK.map((mockNews) => ({
+      ...mockNews,
+      sentimentScore: sentiment.analyze(
+        mockNews.title + " " + mockNews.description
+      ).score,
     }));
   }
 };

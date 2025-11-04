@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { NewsCard } from "@/components/NewsCard";
 import { NewsFilters } from "@/components/NewsFilters";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import PageButton from "@/components/PageButton";
 
 import { fetchNews, type NewsArticle } from "@/services/newsService";
 
@@ -103,25 +104,6 @@ const Index: React.FC = () => {
   const showingTo = Math.min(
     totalArticles,
     (currentPage - 1) * pageSize + pageSize
-  );
-
-  // small page button component
-  const PageButton: React.FC<{
-    page: number;
-    active?: boolean;
-    onClick: (p: number) => void;
-  }> = ({ page, active, onClick }) => (
-    <button
-      onClick={() => onClick(page)}
-      aria-current={active ? "page" : undefined}
-      className={`px-3 py-1 rounded-md text-sm ${
-        active
-          ? "bg-primary text-white"
-          : "bg-card border border-border/30 hover:bg-accent/10"
-      }`}
-    >
-      {page}
-    </button>
   );
 
   return (
