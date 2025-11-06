@@ -3,17 +3,9 @@ import React, { useMemo, useState } from "react";
 import { Combobox } from "@headlessui/react";
 import { Check, ChevronDown } from "lucide-react";
 import { SORTED_COUNTRIES } from "@/data/countries";
+import { Country, CountryProps } from "@/types/country";
 
-export type Country = { code: string; name: string };
-
-type Props = {
-  value: string;
-  onChange: (code: string) => void;
-  placeholder?: string;
-  className?: string;
-};
-
-export const CountrySelect: React.FC<Props> = ({
+export const CountrySelect: React.FC<CountryProps> = ({
   value,
   onChange,
   placeholder = "Type to search countries...",
