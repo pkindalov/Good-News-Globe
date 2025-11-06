@@ -70,7 +70,7 @@ export const NewsFilters = ({
               onClick={onReset}
               disabled={isLoading}
               variant="ghost"
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 h-11 text-sm"
+              className="flex-1 sm:flex-none btn-mint-outline flex items-center justify-center gap-2 px-3 h-11 text-sm"
               aria-label="Reset filters"
               title="Reset filters"
             >
@@ -81,7 +81,7 @@ export const NewsFilters = ({
             <Button
               onClick={onSearch}
               disabled={isLoading || !selectedCountry || !selectedPeriod}
-              className="flex-1 sm:flex-none bg-white text-primary hover:bg-white/90 font-medium px-6 h-11 text-sm flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-none btn-peach font-medium px-6 h-11 text-sm flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>

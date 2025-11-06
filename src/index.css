@@ -8,100 +8,195 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 210 25% 98%;
-    --foreground: 215 25% 15%;
+    /* -----------------------
+       Pinterest-inspired palette (H S% L%)
+       - Deep Teal / Brand:     #0F7C74   -> 176 94% 27%
+       - Mint / Soft:           #CFEDE6   -> 166 45% 87%
+       - Warm Peach:            #F2C7A0   -> 29 76% 79%
+       - Sand / Light Beige:    #F6E7DA   -> 28 61% 90%
+       - Cream:                 #FFF6EE   -> 29 98% 96.6%
+       ----------------------- */
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --brand-teal: 176 94% 27%;
+    --brand-mint: 166 45% 87%;
+    --brand-peach: 29 76% 79%;
+    --brand-sand: 28 61% 90%;
+    --brand-cream: 29 98% 96.6%;
+    --brand-teal-dark: 176 80% 19%;
+
+    /* Core tokens consumed by tailwind.config.js (keep names) */
+    --background: 29 98% 96.6%; /* cream background */
+    --foreground: 176 18% 12%; /* deep teal-ish text */
+
+    --card: 29 98% 96.6%; /* card surface (cream) */
+    --card-foreground: 176 18% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 176 18% 12%;
 
-    --primary: 210 100% 50%;
+    --primary: 176 94% 27%; /* brand teal */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 155 60% 95%;
-    --secondary-foreground: 155 60% 20%;
+    --secondary: 166 45% 87%; /* mint */
+    --secondary-foreground: 176 18% 12%;
 
-    --muted: 210 25% 96%;
-    --muted-foreground: 215 15% 50%;
+    --muted: 210 10% 85%;
+    --muted-foreground: 210 10% 50%;
 
-    --accent: 155 60% 92%;
-    --accent-foreground: 155 60% 20%;
+    --accent: 29 76% 79%; /* peach */
+    --accent-foreground: 176 18% 12%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 210 25% 90%;
-    --input: 210 25% 94%;
-    --ring: 210 100% 50%;
+    --border: 176 94% 27% / 0.1; /* subtle tealish border */
+    --input: 29 98% 96.6%;
+    --ring: 176 94% 27% / 0.18;
 
     /* Custom positive news theme colors */
-    --success: 155 60% 45%;
+    --success: 176 94% 27%;
     --success-foreground: 0 0% 100%;
-    
-    --gradient-primary: linear-gradient(135deg, hsl(210 100% 50%), hsl(190 100% 45%));
-    --gradient-secondary: linear-gradient(135deg, hsl(155 60% 45%), hsl(175 60% 40%));
-    --gradient-background: linear-gradient(180deg, hsl(210 25% 98%), hsl(210 20% 96%));
-    
-    --shadow-card: 0 4px 20px -4px hsl(210 100% 50% / 0.1);
-    --shadow-hover: 0 8px 30px -6px hsl(210 100% 50% / 0.2);
+
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(176 94% 27%),
+      hsl(166 45% 87%)
+    );
+    --gradient-secondary: linear-gradient(
+      135deg,
+      hsl(29 76% 79%),
+      hsl(28 61% 90%)
+    );
+    --gradient-background: linear-gradient(
+      180deg,
+      hsl(166 45% 87%),
+      hsl(29 98% 96.6%)
+    );
+
+    /* shadows tuned to palette */
+    --shadow-card: 0 8px 24px rgba(15, 124, 116, 0.06);
+    --shadow-hover: 0 16px 48px rgba(15, 124, 116, 0.08);
 
     --radius: 0.5rem;
 
+    /* Sidebar / other tokens (kept neutral but readable) */
     --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-foreground: 210 10% 12%;
+    --sidebar-primary: 176 94% 27%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 29 76% 79%;
+    --sidebar-accent-foreground: 176 18% 12%;
+    --sidebar-border: 210 10% 92%;
+    --sidebar-ring: 176 94% 27%;
   }
 
+  .text-gradient-primary {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--brand-teal-dark)),
+      hsl(var(--brand-peach))
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* mint / peach backgrounds for small UI pieces */
+  .bg-mint {
+    background: hsl(var(--brand-mint));
+  }
+  .bg-mint-50 {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--brand-mint)) 0%,
+      rgba(255, 255, 255, 0.7) 100%
+    );
+  }
+
+  .bg-peach {
+    background: hsl(var(--brand-peach));
+  }
+  .bg-sand {
+    background: hsl(var(--brand-sand));
+  }
+
+  /* peach action button (subtle) */
+  .btn-peach {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--brand-peach)),
+      hsl(var(--brand-sand))
+    );
+    color: hsl(var(--brand-teal-dark));
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+
+  /* mint outline button */
+  .btn-mint-outline {
+    background: transparent;
+    border: 1px solid rgba(207, 237, 230, 0.9);
+    color: hsl(var(--brand-teal-dark));
+  }
+
+  /* soft footer band */
+  .footer-band {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--brand-peach)) 0%,
+      hsl(var(--brand-sand)) 100%
+    );
+    color: hsl(var(--brand-teal-dark));
+  }
+
+  /* small chip/badge colors */
+  .badge-mint {
+    background: rgba(207, 237, 230, 0.18);
+    color: hsl(var(--brand-teal-dark));
+    border: 1px solid rgba(15, 124, 116, 0.06);
+  }
+  .badge-peach {
+    background: rgba(242, 199, 160, 0.14);
+    color: hsl(var(--brand-teal-dark));
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+
+  /* dark mode tokens — tuned for contrast with the new palette */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 210 10% 7%;
+    --foreground: 29 98% 96.6%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 210 10% 7%;
+    --card-foreground: 29 98% 96.6%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 210 10% 7%;
+    --popover-foreground: 29 98% 96.6%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 176 80% 20%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 166 30% 18%;
+    --secondary-foreground: 29 98% 96.6%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 210 10% 18%;
+    --muted-foreground: 210 10% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 29 60% 60%;
+    --accent-foreground: 29 98% 96.6%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 29 98% 96.6%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 210 10% 14%;
+    --input: 210 10% 12%;
+    --ring: 176 80% 20%;
+    --sidebar-background: 210 10% 5%;
+    --sidebar-foreground: 29 98% 96.6%;
+    --sidebar-primary: 176 80% 20%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 29 60% 60%;
+    --sidebar-accent-foreground: 29 98% 96.6%;
+    --sidebar-border: 210 10% 14%;
+    --sidebar-ring: 176 80% 20%;
   }
 }
 

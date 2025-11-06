@@ -39,10 +39,10 @@ export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
 
   const badgeClass =
     sentimentLabel === "positive"
-      ? "bg-success/10 text-success hover:bg-success/20"
+      ? "badge-mint"
       : sentimentLabel === "negative"
       ? "bg-destructive/10 text-destructive"
-      : "bg-muted/10 text-muted-foreground";
+      : "badge-peach";
 
   const badgeText =
     sentimentLabel.charAt(0).toUpperCase() + sentimentLabel.slice(1) + " News";
@@ -50,7 +50,8 @@ export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
   return (
     <Card className="group h-full transition-all duration-300 hover:shadow-hover hover:-translate-y-1 bg-card shadow-card border-0">
       {article.urlToImage && (
-        <div className="aspect-video overflow-hidden rounded-t-lg">
+        <div className="rounded-t-lg overflow-hidden">
+          <div className="h-1 bg-sand"></div>
           <img
             src={article.urlToImage}
             alt={article.title}

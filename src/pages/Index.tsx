@@ -122,19 +122,23 @@ const Index: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-background">
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+      <header className="bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-center gap-3 mb-2">
             <div className="p-2 bg-gradient-primary rounded-lg">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold text-gradient-primary">
               <Link to="/">Good News Today</Link>
             </h1>
           </div>
           <p className="text-center text-muted-foreground max-w-2xl mx-auto">
-            Discover positive, uplifting news from around the world. Stay
-            informed about the good things happening in your chosen country.
+            Discover positive, uplifting news from around the world.
+            <br />
+            <span className="text-muted-foreground">
+              Stay informed about the good things happening in your chosen
+              country.
+            </span>
           </p>
         </div>
       </header>
@@ -212,14 +216,14 @@ const Index: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage(1)}
                   disabled={currentPage === 1}
-                  className="px-3 py-1 rounded-md bg-card border border-border/30 hover:bg-accent/10 disabled:opacity-50 text-sm"
+                  className="px-3 py-1 rounded-md bg-transparent border border-border-30 hover:bg-mint-50 disabled:opacity-50 text-sm text-primary"
                 >
                   First
                 </button>
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="px-3 py-1 rounded-md bg-card border border-border/30 hover:bg-accent/10 disabled:opacity-50 text-sm"
+                  className="px-3 py-1 rounded-md bg-transparent border border-border-30 hover:bg-mint-50 disabled:opacity-50 text-sm text-primary"
                 >
                   Prev
                 </button>
@@ -246,14 +250,14 @@ const Index: React.FC = () => {
                     setCurrentPage(Math.min(totalPages, currentPage + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="px-3 py-1 rounded-md bg-card border border-border/30 hover:bg-accent/10 disabled:opacity-50 text-sm"
+                  className="px-3 py-1 rounded-md bg-transparent border border-border-30 hover:bg-mint-50 disabled:opacity-50 text-sm text-primary"
                 >
                   Next
                 </button>
                 <button
                   onClick={() => setCurrentPage(totalPages)}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-1 rounded-md bg-card border border-border/30 hover:bg-accent/10 disabled:opacity-50 text-sm"
+                  className="px-3 py-1 rounded-md bg-transparent border border-border-30 hover:bg-mint-50 disabled:opacity-50 text-sm text-primary"
                 >
                   Last
                 </button>
@@ -283,7 +287,7 @@ const Index: React.FC = () => {
           )}
       </main>
 
-      <footer className="border-t border-border/50 bg-card/30 backdrop-blur-sm mt-16">
+      <footer className="bg-card/30 backdrop-blur-sm mt-16">
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="text-sm text-muted-foreground">
             Bringing you the brightest news from around the world 🌟
