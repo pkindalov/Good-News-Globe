@@ -1,3 +1,4 @@
+// src/components/NewsFilters.tsx
 import {
   Select,
   SelectContent,
@@ -32,7 +33,7 @@ export const NewsFilters = ({
     <Card className="bg-gradient-primary border-0 shadow-card">
       <CardContent className="p-6">
         <div className="flex flex-col sm:flex-row gap-4 items-end">
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 w-full space-y-2">
             <label className="text-sm font-medium text-primary-foreground flex items-center gap-2">
               <Globe className="w-4 h-4" />
               Country
@@ -41,17 +42,17 @@ export const NewsFilters = ({
               value={selectedCountry}
               onChange={onCountryChange}
               placeholder="Type or pick a country..."
-              className="max-w-md"
+              className="w-full sm:max-w-md"
             />
           </div>
 
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 w-full space-y-2">
             <label className="text-sm font-medium text-primary-foreground flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               Time Period
             </label>
             <Select value={selectedPeriod} onValueChange={onPeriodChange}>
-              <SelectTrigger className="bg-white/90 border-white/20 focus:ring-white/50">
+              <SelectTrigger className="w-full bg-white/90 border-white/20 focus:ring-white/50">
                 <SelectValue placeholder="Select time period" />
               </SelectTrigger>
               <SelectContent>
@@ -64,12 +65,12 @@ export const NewsFilters = ({
             </Select>
           </div>
 
-          <div className="flex flex-none flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <div className="flex w-full sm:w-auto gap-2">
             <Button
               onClick={onReset}
               disabled={isLoading}
               variant="ghost"
-              className="flex items-center gap-2 px-3 h-11 text-sm"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 h-11 text-sm"
               aria-label="Reset filters"
               title="Reset filters"
             >
@@ -80,7 +81,7 @@ export const NewsFilters = ({
             <Button
               onClick={onSearch}
               disabled={isLoading || !selectedCountry || !selectedPeriod}
-              className="bg-white text-primary hover:bg-white/90 font-medium px-6 h-11 text-sm flex items-center gap-2"
+              className="flex-1 sm:flex-none bg-white text-primary hover:bg-white/90 font-medium px-6 h-11 text-sm flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
