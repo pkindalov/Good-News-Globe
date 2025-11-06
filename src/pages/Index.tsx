@@ -4,13 +4,14 @@ import { NewsCard } from "@/components/NewsCard";
 import { NewsFilters } from "@/components/NewsFilters";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { NewsArticle } from "@/interfaces/news-article";
+import { Link } from "react-router-dom";
 import PageButton from "@/components/PageButton";
 
 import { fetchNews } from "@/services/newsService";
 
 import { useToast } from "@/hooks/use-toast";
 
-import { Sparkles, Heart, Globe } from "lucide-react";
+import { Sparkles, Heart, Globe, RefreshCw } from "lucide-react";
 
 const DEFAULT_PAGE_SIZE = 9; // 3 columns x 3 rows by default
 const USER_COUNTRY_API = "https://ipapi.co/json/";
@@ -88,6 +89,17 @@ const Index: React.FC = () => {
     }
   };
 
+  const resetFilters = () => {
+    setSelectedCountry("");
+    setSelectedPeriod("7");
+    setArticles([]);
+    setCurrentPage(1);
+    toast({
+      title: "Filters reset",
+      description: "Select a country and find good news.",
+    });
+  };
+
   const totalArticles = articles.length;
   const totalPages = Math.max(1, Math.ceil(totalArticles / pageSize));
 
@@ -117,7 +129,7 @@ const Index: React.FC = () => {
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Good News Today
+              <Link to="/">Good News Today</Link>
             </h1>
           </div>
           <p className="text-center text-muted-foreground max-w-2xl mx-auto">
@@ -136,6 +148,7 @@ const Index: React.FC = () => {
             onPeriodChange={setSelectedPeriod}
             onSearch={handleSearch}
             isLoading={loading}
+            onReset={resetFilters}
           />
         </div>
 

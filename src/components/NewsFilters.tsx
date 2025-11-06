@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Calendar, Globe, Search } from "lucide-react";
+import { Calendar, Globe, Search, RefreshCw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { NewsFilter } from "@/interfaces/news-filters";
 import CountrySelect from "./CountrySelect";
@@ -26,6 +26,7 @@ export const NewsFilters = ({
   onPeriodChange,
   onSearch,
   isLoading,
+  onReset,
 }: NewsFilter) => {
   return (
     <Card className="bg-gradient-primary border-0 shadow-card">
@@ -63,25 +64,42 @@ export const NewsFilters = ({
             </Select>
           </div>
 
-          <Button
-            onClick={onSearch}
-            disabled={isLoading || !selectedCountry || !selectedPeriod}
-            className="bg-white text-primary hover:bg-white/90 font-medium px-8 h-11"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent mr-2" />
-                Searching...
-              </>
-            ) : (
-              <>
-                <Search className="w-4 h-4 mr-2" />
-                Find Good News
-              </>
-            )}
-          </Button>
+          <div className="flex flex-none flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <Button
+              onClick={onReset}
+              disabled={isLoading}
+              variant="ghost"
+              className="flex items-center gap-2 px-3 h-11 text-sm"
+              aria-label="Reset filters"
+              title="Reset filters"
+            >
+              <RefreshCw className="w-4 h-4" />
+              <span className="hidden sm:inline">Reset</span>
+            </Button>
+
+            <Button
+              onClick={onSearch}
+              disabled={isLoading || !selectedCountry || !selectedPeriod}
+              className="bg-white text-primary hover:bg-white/90 font-medium px-6 h-11 text-sm flex items-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent mr-2" />
+                  Searching...
+                </>
+              ) : (
+                <>
+                  <Search className="w-4 h-4" />
+                  <span className="hidden sm:inline">Find Good News</span>
+                  <span className="sm:hidden">Find</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
   );
 };
+
+export default NewsFilters;

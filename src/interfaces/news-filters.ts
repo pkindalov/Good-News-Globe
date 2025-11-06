@@ -5,4 +5,5 @@ export interface NewsFilter {
   onPeriodChange: (period: string) => void;
   onSearch: () => void;
   isLoading: boolean;
+  onReset?: () => void;
 }
