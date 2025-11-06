@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Heart, Globe } from "lucide-react";
 
 const DEFAULT_PAGE_SIZE = 9; // 3 columns x 3 rows by default
+const USER_COUNTRY_API = "https://ipapi.co/json/";
 
 const Index: React.FC = () => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
@@ -27,7 +28,7 @@ const Index: React.FC = () => {
   useEffect(() => {
     const getUserCountry = async () => {
       try {
-        const response = await fetch("https://ipapi.co/json/");
+        const response = await fetch(USER_COUNTRY_API);
         const data = await response.json();
 
         if (data.country_code) {
@@ -221,7 +222,7 @@ const Index: React.FC = () => {
                         key={page}
                         page={page}
                         active={page === currentPage}
-                        onClick={(p) => setCurrentPage(p)}
+                        onClick={(page) => setCurrentPage(page)}
                       />
                     );
                   })}

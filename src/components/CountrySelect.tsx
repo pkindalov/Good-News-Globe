@@ -21,7 +21,7 @@ export const CountrySelect: React.FC<Props> = ({
 }) => {
   const [query, setQuery] = useState("");
 
-  const filtered = useMemo(() => {
+  const filteredCountries = useMemo(() => {
     if (!query.trim()) return SORTED_COUNTRIES;
     const queryLowercase = query.toLowerCase();
     return SORTED_COUNTRIES.filter(
@@ -54,8 +54,8 @@ export const CountrySelect: React.FC<Props> = ({
 
             <Combobox.Input
               className="flex-1 bg-transparent outline-none border-none placeholder:text-muted-foreground"
-              displayValue={(c: Country | null) =>
-                c ? `${c.name} (${c.code.toUpperCase()})` : ""
+              displayValue={(country: Country | null) =>
+                country ? `${country.name} (${country.code.toUpperCase()})` : ""
               }
               onChange={(e) => setQuery(e.target.value)}
               placeholder={
@@ -72,17 +72,17 @@ export const CountrySelect: React.FC<Props> = ({
         </div>
 
         <Combobox.Options className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md bg-card/95 backdrop-blur-sm border border-border/30 py-1 shadow-lg">
-          {filtered.length === 0 ? (
+          {filteredCountries.length === 0 ? (
             <div className="px-3 py-2 text-sm text-muted-foreground">
               No countries match “{query}”
             </div>
           ) : (
-            filtered.map((c) => {
-              const code = c.code.toLowerCase();
+            filteredCountries.map((country) => {
+              const code = country.code.toLowerCase();
               return (
                 <Combobox.Option
-                  key={c.code}
-                  value={c}
+                  key={country.code}
+                  value={country}
                   className={({ active }) =>
                     `flex items-center justify-between px-3 py-2 cursor-pointer text-sm ${
                       active ? "bg-accent/20" : "bg-transparent"
@@ -98,9 +98,9 @@ export const CountrySelect: React.FC<Props> = ({
                         />
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm">{c.name}</span>
+                            <span className="text-sm">{country.name}</span>
                             <span className="text-xs text-muted-foreground">
-                              ({c.code.toUpperCase()})
+                              ({country.code.toUpperCase()})
                             </span>
                           </div>
                         </div>

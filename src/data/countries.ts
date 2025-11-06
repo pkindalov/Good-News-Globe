@@ -1,4 +1,4 @@
-type Country = { code: string; name: string };
+import { Country } from "@/types/country";
 
 export const SORTED_COUNTRIES: Country[] = [
   { code: "ad", name: "Andorra" },
@@ -251,3 +251,13 @@ export const SORTED_COUNTRIES: Country[] = [
   { code: "zm", name: "Zambia" },
   { code: "zw", name: "Zimbabwe" },
 ];
+
+export const countryMap: Record<string, string> = {
+  us: "United States",
+  gb: "United Kingdom",
+  ca: "Canada",
+  de: "Germany",
+  fr: "France",
+  bg: "Bulgaria",
+  se: "Sweden",
+};

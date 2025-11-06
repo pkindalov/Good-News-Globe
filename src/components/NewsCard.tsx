@@ -8,8 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Calendar, MapPin } from "lucide-react";
-
-import type { NewsArticle as ServiceNewsArticle } from "@/services/newsService";
+import { NewsArticle as ServiceNewsArticle } from "@/interfaces/news-article";
 
 type NewsArticle = ServiceNewsArticle & {
   sentiment?: "positive" | "neutral" | "negative";

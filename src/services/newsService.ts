@@ -3,9 +3,12 @@ import { NEGATIVE_WORDS } from "@/data/words";
 import { MOCK_ARTICLES } from "@/data/articles";
 import { NewsArticle } from "@/interfaces/news-article";
 import { NewsApiResponse } from "@/types/news-api-response";
+import { countryMap } from "@/data/countries";
 
 const sentiment = new Sentiment();
 const POS_THRESHOLD = 1; // sentiment score must be > this to be considered positive
+const NEWS_API_URL = "https://newsapi.org/v2/everything";
+const PROXY_URL = "/api/news";
 
 function getKey(): string | undefined {
   return import.meta.env?.VITE_NEWSAPI_KEY;
@@ -20,21 +23,12 @@ function looksOvertlyNegative(text: string) {
 }
 
 function countryToName(code: string) {
-  const map: Record<string, string> = {
-    us: "United States",
-    gb: "United Kingdom",
-    ca: "Canada",
-    de: "Germany",
-    fr: "France",
-    bg: "Bulgaria",
-    se: "Sweden",
-  };
-  return map[code?.toLowerCase()] ?? undefined;
+  return countryMap[code?.toLowerCase()] ?? undefined;
 }
 
 async function fetchFromNewsApi(country: string, days: number) {
   const countryName = countryToName(country) || country;
-  const newsApiUrl = new URL("https://newsapi.org/v2/everything");
+  const newsApiUrl = new URL(NEWS_API_URL);
   newsApiUrl.searchParams.set("q", `"${countryName}"`);
   newsApiUrl.searchParams.set("pageSize", "100");
 
@@ -55,7 +49,7 @@ async function fetchFromNewsApi(country: string, days: number) {
     newsApiUrl.searchParams.set("apiKey", viteKey!);
     resp = await fetch(newsApiUrl.toString());
   } else {
-    const proxy = new URL("/api/news", window.location.origin);
+    const proxy = new URL(PROXY_URL, window.location.origin);
     proxy.searchParams.set("q", `"${countryName}"`);
     proxy.searchParams.set("pageSize", "100");
     resp = await fetch(proxy.toString());
@@ -86,19 +80,19 @@ async function fetchFromNewsApi(country: string, days: number) {
   const processedNews = raw
     .map((item: unknown) => {
       if (typeof item !== "object" || item === null) return null;
-      const a = item as Record<string, unknown>;
+      const article = item as Record<string, unknown>;
 
-      const title = typeof a.title === "string" ? a.title : "";
+      const title = typeof article.title === "string" ? article.title : "";
       const description =
-        typeof a.description === "string" ? a.description : "";
+        typeof article.description === "string" ? article.description : "";
       const publishedAt =
-        typeof a.publishedAt === "string"
-          ? a.publishedAt
+        typeof article.publishedAt === "string"
+          ? article.publishedAt
           : new Date().toISOString();
-      const url = typeof a.url === "string" ? a.url : "";
+      const url = typeof article.url === "string" ? article.url : "";
 
       let sourceName = "";
-      const src = a.source;
+      const src = article.source;
       if (typeof src === "object" && src !== null) {
         const maybeName = (src as Record<string, unknown>).name;
         if (typeof maybeName === "string") sourceName = maybeName;
@@ -107,7 +101,7 @@ async function fetchFromNewsApi(country: string, days: number) {
       }
 
       const urlToImage =
-        typeof a.urlToImage === "string" ? a.urlToImage : undefined;
+        typeof article.urlToImage === "string" ? article.urlToImage : undefined;
 
       const textForScore = `${title} ${description}`;
       const score = sentiment.analyze(textForScore).score;
